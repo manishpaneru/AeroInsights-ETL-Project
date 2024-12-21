@@ -6,10 +6,10 @@ import sqlite3
 from datetime import datetime, timedelta
 import numpy as np
 
-# Page config
+# Hey there! 👋 I wanted to make this dashboard look professional, so I started with some nice page config
 st.set_page_config(page_title="Live Flights ETL Project", layout="wide", page_icon="✈️")
 
-# Custom CSS for better styling
+# I love making things look pretty! Added some custom CSS to make the metrics and layout pop
 st.markdown("""
     <style>
     .stMetric .metric-label { font-size: 16px !important; }
@@ -22,7 +22,7 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# Title and Creator info with enhanced styling
+# I wanted a cool header that stands out, so I created this fancy title section
 st.markdown("""
     <div style='text-align: center; background-color: #f0f2f6; padding: 20px; border-radius: 10px;'>
         <h1 style='color: #1f77b4;'>✈️ Live Flights ETL Project</h1>
@@ -31,7 +31,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 st.markdown("---")
 
-# Load data
+# I'm using caching here because who likes waiting for data to load? Not me!
 @st.cache_data
 def load_data():
     try:
@@ -40,7 +40,7 @@ def load_data():
         airports_df = pd.read_sql_query("SELECT * FROM airports", conn)
         conn.close()
         
-        # Convert timestamps
+        # Converting timestamps because working with proper datetime is way easier
         flights_df['approxDepartureTime'] = pd.to_datetime(flights_df['approxDepartureTime'])
         flights_df['approxArrivalTime'] = pd.to_datetime(flights_df['approxArrivalTime'])
         
@@ -49,29 +49,30 @@ def load_data():
         st.error(f"Error loading data: {str(e)}")
         return None, None
 
-# Load the data
+# Time to load our precious data!
 flights_df, airports_df = load_data()
 
 if flights_df is not None and airports_df is not None:
-    # Calculate flight duration
+    # I thought it'd be cool to calculate flight durations - helps us understand how long these planes are up there!
     flights_df['duration'] = (flights_df['approxArrivalTime'] - flights_df['approxDepartureTime']).dt.total_seconds() / 3600
 
-    # Top Stats Row
+    # I love a good overview! Created this stats section to give a quick snapshot of what's happening
     st.subheader("📊 Flight Analytics Overview")
     col1, col2, col3, col4 = st.columns(4)
     
-    # Calculate metrics
+    # Calculating some interesting metrics that tell us the big picture
     total_flights = len(flights_df)
     active_flights = len(flights_df[flights_df['approxArrivalTime'] > datetime.now()])
     avg_duration = flights_df['duration'].mean()
     unique_routes = len(flights_df.groupby(['DepartureAirport', 'ArrivalAirport']))
     
+    # These metrics are like the vital signs of our flight network
     col1.metric("Total Flights", f"{total_flights:,}", delta="Real-time")
     col2.metric("Active Flights", f"{active_flights:,}", delta="Live")
     col3.metric("Avg Flight Duration", f"{avg_duration:.1f} hrs")
     col4.metric("Unique Routes", f"{unique_routes:,}")
-    
-    # Main Dashboard Layout
+
+    # I organized everything into tabs because I believe in keeping things neat and tidy!
     tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs(["Flight Routes & Traffic", "Time Analysis", "Airport Insights", 
                                                   "Simple Analytics", "Additional Insights", "Cool Insights"])
     
@@ -910,28 +911,28 @@ if flights_df is not None and airports_df is not None:
                 help="Percentage of possible routes that are actually used"
             )
 
-    # Footer
+    # I wanted to leave a nice footer explaining what this project is all about
     st.markdown("---")
     st.markdown("### About")
     st.markdown("""
-    This dashboard provides real-time insights into flight data from the OpenSky Network API. 
-    The ETL pipeline:
-    - **Extracts** real-time flight data from OpenSky API
-    - **Transforms** raw data into analytical format
-    - **Loads** processed data into SQLite database
+    This dashboard is my baby! I built it to show real-time flight insights from the OpenSky Network API. 
+    Here's how my ETL pipeline works:
+    - First, I **Extract** the juicy flight data from OpenSky API
+    - Then, I **Transform** it into something meaningful and analytical
+    - Finally, I **Load** everything into a neat SQLite database
     
-    Key Features:
-    - Real-time flight monitoring
-    - Route popularity analysis
-    - Temporal patterns analysis
-    - Airport traffic insights
+    I'm particularly proud of these features:
+    - Real-time flight tracking (because who doesn't love live data?)
+    - Route popularity analysis (finding out where everyone's flying!)
+    - Temporal patterns (spotting those busy times)
+    - Airport insights (who's handling the most traffic?)
     """)
 
-    # Enhanced Sidebar
+    # Added a sidebar because I believe in giving users control over their experience
     st.sidebar.title("Dashboard Controls")
     st.sidebar.markdown("---")
     
-    # Add time range selector
+    # Let users pick their time range - flexibility is key!
     st.sidebar.markdown("### Time Range")
     time_range = st.sidebar.slider(
         "Select Hours to Analyze",
@@ -940,18 +941,19 @@ if flights_df is not None and airports_df is not None:
         value=12
     )
     
-    # Add data refresh information
+    # Everyone likes to know they're looking at fresh data
     st.sidebar.markdown("---")
     st.sidebar.markdown("### Data Refresh")
     st.sidebar.markdown(f"Last updated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
     
-    # Add data source information
+    # Giving credit where credit is due!
     st.sidebar.markdown("---")
     st.sidebar.markdown("### Data Sources")
     st.sidebar.markdown("""
-    - OpenSky Network API (Real-time flight data)
-    - Global Airports Database
+    - OpenSky Network API (My source for all that real-time goodness)
+    - Global Airports Database (Because we need to know where these planes are landing!)
     """)
 
 else:
-    st.error("Failed to load data. Please check your database connection and try again.")
+    # Even error messages can be friendly!
+    st.error("Oops! Couldn't load the data. Mind checking if the database is where it should be?")
